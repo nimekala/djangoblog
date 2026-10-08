@@ -1,6 +1,9 @@
+from django.contrib.auth import login
 from django.core.paginator import Paginator
 from django.shortcuts import render, get_object_or_404, redirect
-from .forms import PostForm
+from django.urls import reverse_lazy
+from django.views.generic.edit import CreateView
+from .forms import PostForm, RegisterForm
 from .models import Post, Category
 
 
@@ -47,6 +50,17 @@ def post_create(request):
     else:
         form = PostForm(initial={"status": "published"})
     return render(request, "blog/post_form.html", {"form": form})
+
+
+class RegisterView(CreateView):
+    form_class = RegisterForm
+    template_name = "blog/register.html"
+    success_url = reverse_lazy("home")
+
+    def form_valid(self, form):
+        response = super().form_valid(form)  # මුලින් user එක save වෙනවා
+        login(self.request, self.object)     # ඊට පස්සේ ඒ user ව ඉබේම login කරනවා
+        return response
 
 
 def about(request):
