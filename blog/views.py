@@ -1,13 +1,62 @@
-from django.shortcuts import render
-from django.http import HttpResponse
+from django.core.paginator import Paginator
+from django.shortcuts import render, get_object_or_404, redirect
+from .forms import PostForm
+from .models import Post, Category
 
 
-# Create your views here.
-def home (request):
-    return HttpResponse("<h1>Welcome THe DJango</h1> <p>this is the djamgblog homepage.</p>")
+def _published_posts():
+    return (Post.objects.filter(status="published")
+            .select_related("category")
+            .prefetch_related("tags")
+            .order_by("-created_at"))
 
-def about (request):
-    return render(request, 'blog/home.html', {'content':'this is the djamgblog team.'})
 
-def contact (request):
-    return render(request, 'blog/contact.html', {'content':'this is the djamgblog team.'})
+def home(request):
+    paginator = Paginator(_published_posts(), 6)
+    page_obj = paginator.get_page(request.GET.get("page"))
+    return render(request, "blog/home.html", {
+        "page_obj": page_obj,
+        "categories": Category.objects.all().order_by("name"),
+    })
+
+
+def category_list(request):
+    categories = Category.objects.all().order_by("name")
+    return render(request, "blog/category_list.html", {"categories": categories})
+
+
+def category_posts(request, pk):
+    category = get_object_or_404(Category, pk=pk)
+    paginator = Paginator(_published_posts().filter(category=category), 6)
+    page_obj = paginator.get_page(request.GET.get("page"))
+    return render(request, "blog/home.html", {
+        "page_obj": page_obj,
+        "current_category": category,
+        "categories": Category.objects.all().order_by("name"),
+    })
+
+
+def post_create(request):
+    if request.method == "POST":
+        form = PostForm(request.POST, request.FILES)
+        if form.is_valid():
+            post = form.save()
+            if post.status == "published":
+                return redirect("post_detail", slug=post.slug)
+            return redirect("home")
+    else:
+        form = PostForm(initial={"status": "published"})
+    return render(request, "blog/post_form.html", {"form": form})
+
+
+def about(request):
+    return render(request, "blog/about.html")
+
+
+def contact(request):
+    return render(request, "blog/contact.html")
+
+
+def post_detail(request, slug):
+    post = get_object_or_404(Post, slug=slug, status="published")
+    return render(request, "blog/post_detail.html", {"post": post})

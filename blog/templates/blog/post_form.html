@@ -1,0 +1,70 @@
+{% extends "blog/base.html" %}
+{% block content %}
+<div class="container" style="max-width: 700px;">
+  <h2 class="text-center my-4">New Post</h2>
+
+  <form method="post" enctype="multipart/form-data" class="bg-white p-4 rounded shadow-sm">
+    {% csrf_token %}
+
+    {{ form.non_field_errors }}
+
+    <div class="mb-3">
+      <label class="form-label" for="{{ form.title.id_for_label }}">Title</label>
+      {{ form.title }}
+      {{ form.title.errors }}
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label" for="{{ form.category.id_for_label }}">Category</label>
+      {{ form.category }}
+      {{ form.category.errors }}
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label d-block">Tags</label>
+      {{ form.tags }}
+      {{ form.tags.errors }}
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label" for="{{ form.content.id_for_label }}">Content</label>
+      {{ form.content }}
+      {{ form.content.errors }}
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label" for="{{ form.cover_image.id_for_label }}">Cover image</label>
+      {{ form.cover_image }}
+      {{ form.cover_image.errors }}
+    </div>
+
+    <div class="mb-3">
+      <img id="preview" style="max-width: 200px; display: none;" class="rounded" alt="Preview">
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label" for="{{ form.status.id_for_label }}">Status</label>
+      {{ form.status }}
+    </div>
+
+    <button type="submit" class="btn">Publish</button>
+    <a href="{% url 'home' %}" class="btn btn-link">Cancel</a>
+  </form>
+</div>
+
+<script>
+  const fileInput = document.querySelector('input[type="file"]');
+  if (fileInput) {
+    fileInput.addEventListener('change', function (event) {
+      const preview = document.getElementById('preview');
+      const file = event.target.files[0];
+      if (file) {
+        preview.src = URL.createObjectURL(file);
+        preview.style.display = 'block';
+      } else {
+        preview.style.display = 'none';
+      }
+    });
+  }
+</script>
+{% endblock %}

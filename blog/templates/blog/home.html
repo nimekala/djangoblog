@@ -1,6 +1,84 @@
 {% extends "blog/base.html" %}
-{% block title %}Home{% endblock %}
 {% block content %}
-  <h1>Welcome to DjangoBlog</h1>
-  <p>This page will soon show a list of blog posts.</p>
+<div class="hero">
+  <h1>{% if current_category %}{{ current_category.name }}{% else %}Welcome to My Blog{% endif %}</h1>
+</div>
+
+<div class="post-grid">
+  {% for post in page_obj %}
+  <div class="post-card">
+    {% if post.cover_image %}
+    <img src="{{ post.cover_image.url }}" alt="{{ post.title }}" class="post-cover" loading="lazy">
+    {% endif %}
+
+    <h3>{{ post.title }}</h3>
+
+    <div class="post-meta">
+      {% if post.category %}
+      <a href="{% url 'category_posts' post.category.pk %}" class="badge bg-primary text-decoration-none">{{ post.category.name }}</a>
+      {% endif %}
+      {% for tag in post.tags.all %}
+      <span class="badge bg-secondary">{{ tag.name }}</span>
+      {% endfor %}
+    </div>
+
+    <p class="excerpt">{{ post.content|truncatewords:20 }}</p>
+    <a href="{% url 'post_detail' post.slug %}" class="btn">Read more</a>
+  </div>
+  {% empty %}
+  <p class="text-center">No posts in this category yet.</p>
+  {% endfor %}
+</div>
+
+{% if page_obj.paginator.num_pages > 1 %}
+<nav aria-label="Blog pagination" class="mt-5">
+  <ul class="pagination justify-content-center">
+
+    {% if page_obj.has_previous %}
+    <li class="page-item">
+      <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a>
+    </li>
+    {% else %}
+    <li class="page-item disabled">
+      <span class="page-link">Previous</span>
+    </li>
+    {% endif %}
+
+    {% for num in page_obj.paginator.page_range %}
+    {% if num == page_obj.number %}
+    <li class="page-item active">
+      <span class="page-link">{{ num }}</span>
+    </li>
+    {% else %}
+    <li class="page-item">
+      <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+    </li>
+    {% endif %}
+    {% endfor %}
+
+    {% if page_obj.has_next %}
+    <li class="page-item">
+      <a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a>
+    </li>
+    {% else %}
+    <li class="page-item disabled">
+      <span class="page-link">Next</span>
+    </li>
+    {% endif %}
+
+  </ul>
+</nav>
+{% endif %}
+
+<div class="category-bar mt-4 mb-5">
+  <span class="category-label">Browse by Category</span>
+  <div class="category-pills">
+    <a href="{% url 'home' %}"
+       class="pill {% if not current_category %}active{% endif %}">All</a>
+    {% for category in categories %}
+    <a href="{% url 'category_posts' category.pk %}"
+       class="pill {% if current_category and current_category.pk == category.pk %}active{% endif %}">{{ category.name }}</a>
+    {% endfor %}
+  </div>
+</div>
 {% endblock %}

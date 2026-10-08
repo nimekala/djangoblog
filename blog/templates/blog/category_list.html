@@ -1,0 +1,15 @@
+{% extends "blog/base.html" %}
+{% block content %}
+<div class="container my-4 text-center">
+  <h2 class="mb-4">Browse by Category</h2>
+  <div class="d-flex flex-wrap gap-2 justify-content-center">
+    {% for category in categories %}
+    <a href="{% url 'category_posts' category.pk %}"
+       class="btn btn-outline-primary">{{ category.name }}</a>
+    {% empty %}
+    <p class="text-muted">No categories yet. Add some in the admin.</p>
+    {% endfor %}
+  </div>
+  <a href="{% url 'home' %}" class="btn btn-link mt-4">← Back to all posts</a>
+</div>
+{% endblock %}
