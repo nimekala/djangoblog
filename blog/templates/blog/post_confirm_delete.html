@@ -1,0 +1,13 @@
+{% extends "blog/base.html" %}
+{% block title %}Delete post{% endblock %}
+{% block content %}
+<div class="container" style="max-width: 600px;">
+  <h2 class="text-center my-4">Delete post</h2>
+  <form method="post" class="bg-white p-4 rounded shadow-sm text-center">
+    {% csrf_token %}
+    <p>Are you sure you want to delete <strong>"{{ post.title }}"</strong>? This cannot be undone.</p>
+    <button type="submit" class="btn btn-danger">Yes, delete</button>
+    <a href="{% url 'post_detail' post.slug %}" class="btn btn-link">Cancel</a>
+  </form>
+</div>
+{% endblock %}

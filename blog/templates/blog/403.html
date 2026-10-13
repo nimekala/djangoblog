@@ -1,0 +1,9 @@
+{% extends "blog/base.html" %}
+{% block title %}Access Denied{% endblock %}
+{% block content %}
+<div class="container text-center" style="max-width: 600px;">
+  <h1 class="my-4">403 - Access Denied</h1>
+  <p>You don't have permission to do that.</p>
+  <a href="{% url 'home' %}" class="btn">Go Home</a>
+</div>
+{% endblock %}
